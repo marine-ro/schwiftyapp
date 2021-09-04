@@ -1,0 +1,37 @@
+*,
+*::after,
+*::before {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+body {
+    font-family: 'Roboto', sans-serif;
+    padding: 0;
+    margin: 0;
+    background-color: #070707;
+    color: #ffffff;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+.page {
+    flex: 1;
+}
+.wrapper {
+    width: 85%;
+    margin: 0 auto;
+    padding:0 16px;
+}
+.link {
+    transition: .5s;
+    &:hover {
+        transform: translateY(-5px);
+        transition: .5s;
+    }
+    &.active {
+        transform: none;
+        color: #e06020;
+    }
+}
+@import "ui/_header";
+@import "ui/_table";
