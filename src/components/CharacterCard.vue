@@ -51,7 +51,7 @@
     import CharacterStatusIcon from '@/components/CharacterStatusIcon.vue';
 
     export default {
-        name: 'Card',
+        name: 'CharacterCard',
         components: {
             Fragment,
             CharacterStatusIcon,

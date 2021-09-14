@@ -34,14 +34,14 @@ export default class BaseApiService {
     }
 
     setInterceptors() {
-        this._axios.interceptors.response.use(null, error => {
-            if (error.response.status === 404) {
-                router.push({
-                    name: '404',
-                });
-            }
-            return Promise.reject(error);
-        });
+        // this._axios.interceptors.response.use(null, error => {
+        //     if (error.response.status === 404) {
+        //         router.push({
+        //             name: '404',
+        //         });
+        //     }
+        //     return Promise.reject(error);
+        // });
     }
 
     setEndpoints() {

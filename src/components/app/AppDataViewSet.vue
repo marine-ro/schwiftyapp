@@ -18,7 +18,7 @@
     import InlineSvg from 'vue-inline-svg';
 
     export default {
-        name: 'AppDataView',
+        name: 'AppDataViewSet',
         components: {
             InlineSvg,
         },

@@ -2,7 +2,7 @@
     <ul
         class="list"
         id="example-1">
-        <Card
+        <CharacterCard
             v-for="character in characters"
             :key="character.id"
             :card="character"
@@ -11,12 +11,12 @@
     </ul>
 </template>
 <script>
-    import Card from '@/components/Card.vue';
+    import CharacterCard from '@/components/CharacterCard.vue';
 
     export default {
-        name: 'ListMode',
+        name: 'GridMode',
         components: {
-            Card,
+            CharacterCard,
         },
         props: {
             characters: {
@@ -27,9 +27,6 @@
             type: {
                 type: String,
                 required: true,
-                // validator(value) {
-                //     return ['list'].indexOf(value) !== -1;
-                // },
             },
         },
     };

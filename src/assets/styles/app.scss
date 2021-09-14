@@ -33,5 +33,11 @@ body {
         color: #e06020;
     }
 }
+.list {
+    margin-top: 30px;
+}
 @import "ui/_header";
 @import "ui/_table";
+@import "ui/_form";
+@import "ui/_select";
+

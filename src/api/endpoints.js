@@ -1,6 +1,5 @@
 export const ENDPOINTS = {
     character: {
-        baseEndpoint: 'character',
         endpoints: [
             {
                 name: 'GetAll',
@@ -15,7 +14,6 @@ export const ENDPOINTS = {
         ],
     },
     location: {
-        baseEndpoint: 'location',
         endpoints: [
             {
                 name: 'GetAll',
@@ -30,7 +28,6 @@ export const ENDPOINTS = {
         ],
     },
     episode: {
-        baseEndpoint: 'episode',
         endpoints: [
             {
                 name: 'GetAll',

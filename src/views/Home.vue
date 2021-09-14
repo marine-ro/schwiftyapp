@@ -65,7 +65,7 @@ img {
     max-width: 1200px;
     width: 100%;
     margin: 0 auto;
-    padding: 0 24px;
+    padding: 100px 24px;
 }
 ul {
     list-style-type: none;

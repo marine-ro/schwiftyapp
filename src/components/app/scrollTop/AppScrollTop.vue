@@ -15,6 +15,7 @@
     import AppScrollTopWrapper from '@/components/app/scrollTop/AppScrollTopWrapper';
 
     export default {
+        name: 'AppScrollTop',
         components: {
             AppScrollTopWrapper,
             InlineSvg,

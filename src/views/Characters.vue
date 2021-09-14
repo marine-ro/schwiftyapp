@@ -7,29 +7,46 @@
         />
         <main class="main">
             <div class="wrapper">
+                <CharactersFilter
+                    :formFilterDefault="formFilterDefault"
+                    @applyFilter="applyFilter"
+                    @resetFilter="applyFilter"
+                />
                 <AppLoader v-if="isLoading"/>
-                <div v-else class="div">
-                    <div>
-                        <AppDataView
-                            :charactersView="viewModeComponents"
-                            :activeView="activeView"
-                            @setViewMode="setViewMode"
+                <template v-else>
+                    <AppDataViewSet
+                        :charactersView="viewModeComponents"
+                        :activeView="activeView"
+                        @setViewMode="setViewMode"
+                    />
+                    <AppError v-if="error" :error="error"/>
+                    <template v-else>
+                        <AppPagination
+                            v-if="info"
+                            :pages="info.pages"
+                            :paginationCurrent="requestFilterDefault.page"
+                            @changePage="changePage"
                         />
-                    </div>
-                    <template v-for="(component, index) in viewModeComponents">
-                        <component
-                            :key="index"
-                            v-if="component.type === activeView"
-                            :is="component.component"
-                            :characters="characters"
-                            :type="component.type"
+                        <template v-for="(component, index) in viewModeComponents">
+                            <component
+                                :key="index"
+                                v-if="component.type === activeView"
+                                :is="component.component"
+                                :characters="characters"
+                                :type="component.type"
+                            />
+                        </template>
+                        <AppPagination
+                            v-if="info"
+                            :pages="info.pages"
+                            :paginationCurrent="requestFilterDefault.page"
+                            @changePage="changePage"
                         />
                     </template>
-                    <AppPagination :info="info"/>
-                </div>
+
+                </template>
             </div>
             <!-- <p>{{ $t('message') }}</p> -->
-
 
         </main>
     </div>
@@ -37,58 +54,41 @@
 </template>
 
 <script>
-    import {mapState} from 'vuex';
-    import AppDataView from '@/components/app/AppDataView.vue';
-    import Table from '@/components/table/Table.vue';
-    import ListMode from '@/components/ListMode.vue';
-    import GridMode from '@/components/GridMode.vue';
+    import {mapState, mapGetters} from 'vuex';
+    import AppDataViewSet from '@/components/app/AppDataViewSet.vue';
+    import TableMode from '@/components/characterModes/TableMode.vue';
+    import ListMode from '@/components/characterModes/ListMode.vue';
+    import GridMode from '@/components/characterModes/GridMode.vue';
     import PageTop from '@/components/PageTop.vue';
     import AppLoader from '@/components/app/AppLoader.vue';
     import AppPagination from '@/components/app/AppPagination.vue';
-
-    const formFilterDefault = {
-        name: '',
-        status: '',
-        species: '',
-        type: '',
-        gender: '',
-    };
-    const deepClone = (obj) => {
-        const clone = {};
-
-        for (const key in obj) {
-            // eslint-disable-next-line no-prototype-builtins
-            if (obj.hasOwnProperty(key)) {
-                clone[key] = obj[key];
-            }
-        }
-        return clone;
-    };
+    import CharactersFilter from '@/components/CharactersFilter.vue';
+    import AppError from '@/components/app/AppError.vue';
 
     export default {
         name: 'Characters',
         components: {
-            AppDataView,
-            Table,
+            AppDataViewSet,
+            TableMode,
             ListMode,
             GridMode,
             PageTop,
             AppLoader,
             AppPagination,
+            CharactersFilter,
+            AppError,
         },
         data() {
             return {
-                count: null,
                 pageTop: {
                     subtitle: 'Welcome to the characters',
                     title: 'This is characters',
                     bg: 'characters',
-
                 },
                 activeView: 'table',
                 viewModeComponents: {
                     table: {
-                        component: 'Table',
+                        component: 'TableMode',
                         view: 'table',
                         text: 'table',
                         icon: 'table',
@@ -109,15 +109,20 @@
                         type: 'grid',
                     },
                 },
+                formFilterDefault: {
+                    name: '',
+                    status: '',
+                    species: '',
+                    gender: '',
+                },
                 requestFilterDefault: {
                     name: '',
                     status: '',
                     species: '',
-                    type: '',
                     gender: '',
                     page: 1,
                 },
-                formFilter: deepClone(formFilterDefault),
+                requestFilter: {},
 
             };
         },
@@ -128,16 +133,65 @@
                 isLoading: (state) => state.character.isLoading,
                 error: (state) => state.character.error,
             }),
+
+            // ...mapGetters({
+            //     actualPaginationInfo: 'character/actualPaginationInfo',
+            //     countCharacters: 'character/countCharacters',
+            // }),
+
+        },
+        watch: {
+            // info(val, oldVal) {
+            //     // is triggered whenever the store state changes
+            //     console.log('do stuff', val, oldVal);
+            // },
+            // countCharacters(val, oldVal) {
+            //     // is triggered whenever the store state changes
+            //     console.log('do stuff', val, oldVal);
+            // },
+        },
+
+        created() {
+            this.requestFilter = this.requestFilterDefault;
         },
         async mounted() {
-            this.getCharacters();
+            this.getCharacters(this.requestFilter);
         },
         methods: {
-            getCharacters() {
-                this.$store.dispatch('character/getAllCharacters', {query: this.requestFilterDefault}, null);
+            getCharacters(filter) {
+                const reqFilter = this.prepareRequestFilter(filter);
+                this.$store.dispatch('character/getAllCharacters', {query: reqFilter}, null);
             },
             setViewMode(mode) {
                 this.activeView = mode;
+            },
+            // createdFilter(filter) {
+            //     const requestFilter = {...this.requestFilterDefault, ...filter};
+            //     console.log(requestFilter);
+            //     this.getCharacters(requestFilter);
+            // },
+            applyFilter(filter) {
+                this.requestFilter.page = 1;
+                const reqFilter = this.prepareRequestFilter(filter);
+
+                this.getCharacters(reqFilter);
+            },
+            changePage(page) {
+                this.requestFilter.page = page;
+                //const reqFilter = this.prepareRequestFilter(filter);
+
+                this.getCharacters(this.requestFilter);
+            },
+            prepareRequestFilter(filter) {
+                // for (const key in this.requestFilter) {
+                //     filter[key] = this.requestFilter[key]
+                //         ? filter[key]
+                //         : null;
+                // }
+                return {...this.requestFilter, ...filter};
+            // if (bResetPage) {
+            //     requestFilter.page = 1;
+            // }
             },
         },
     };

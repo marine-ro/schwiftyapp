@@ -1,0 +1,32 @@
+@import "vue-select/src/scss/vue-select.scss";
+
+.v-select {
+    &.vs--open {
+        border: 1px solid white;
+        
+        & .vs__selected {
+            position: relative;
+        }
+    }
+}
+.vs__dropdown-menu {
+        background: #070707;
+        border: 1px solid white;
+        & .vs__dropdown-option {
+            color: white  !important;
+        }
+    }
+.vs__dropdown-option--highlight {
+        background: #e06020 !important;
+    }
+.vs__dropdown-toggle {
+    height: 40px;
+
+    & .vs__selected {
+        color: white;
+    }
+}
+.vs__selected {
+    font-size: 16px;
+    line-height: normal;
+}
