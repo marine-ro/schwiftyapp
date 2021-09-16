@@ -7,11 +7,80 @@
         />
         <main class="main">
             <div class="wrapper">
-                <CharactersFilter
-                    :formFilterDefault="formFilterDefault"
-                    @applyFilter="applyFilter"
-                    @resetFilter="applyFilter"
-                />
+                <form class="form" action="">
+                    <div class="form__body">
+                        <div class="form__row">
+                            <label class=" form__block form__block--1-2">
+                                <span class="form__label form__label--top">name</span>
+                                <input
+                                    class="form__control form__input"
+                                    type="text"
+                                    v-model="formFilter.name"
+                                    placeholder="Enter name"
+                                />
+                            </label>
+                            <label class=" form__block form__block--1-2">
+                                <span class="form__label form__label--top">species</span>
+                                <input
+                                    class="form__control form__input"
+                                    type="text"
+                                    v-model="formFilter.species"
+                                    placeholder="Enter species" />
+                            </label>
+                            <label class=" form__block form__block--1-2">
+                                <span class="form__label form__label--top">status</span>
+                                <vSelect
+                                    class="form__control vs-custom--down"
+                                    :options="status"
+                                    label="choose status"
+                                    :reduce="(option) => option"
+                                    :searchable="false"
+                                    :clearable="true"
+                                    placeholder="choose status"
+                                    v-model="formFilter.status"
+                                >
+                                    <template slot="no-options">no</template>
+                                </vSelect>
+                            </label>
+                            <label class=" form__block form__block--1-2">
+                                <span class="form__label form__label--top">gender</span>
+                                <vSelect
+                                    class="form__control vs-custom--down"
+                                    :options="gender"
+                                    ref="select"
+                                    :reduce="(option) => option"
+                                    :searchable="false"
+                                    :clearable="true"
+                                    placeholder="choose gender"
+                                    v-model="formFilter.gender"
+                                >
+                                    <template slot="no-options">no</template>
+                                </vSelect>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form__footer">
+                        <uiButtonsGroup>
+                            <uiButton
+                                type="submit"
+                                kind="accent"
+                                @click.prevent="applyFilter">
+                                <template #btn-text>
+                                    find
+                                </template>
+                            </uiButton>
+                            <uiButton
+                                type="reset"
+                                kind="basic"
+                                @click.prevent="resetFilter">
+                                <template #btn-text>
+                                    reset
+                                </template>
+                            </uiButton>
+                        </uiButtonsGroup>
+                    </div>
+
+                </form>
                 <AppLoader v-if="isLoading"/>
                 <template v-else>
                     <AppDataViewSet
@@ -24,7 +93,7 @@
                         <AppPagination
                             v-if="info"
                             :pages="info.pages"
-                            :paginationCurrent="requestFilterDefault.page"
+                            :paginationCurrent="requestFilter.page"
                             @changePage="changePage"
                         />
                         <template v-for="(component, index) in viewModeComponents">
@@ -39,14 +108,13 @@
                         <AppPagination
                             v-if="info"
                             :pages="info.pages"
-                            :paginationCurrent="requestFilterDefault.page"
+                            :paginationCurrent="requestFilter.page"
                             @changePage="changePage"
                         />
                     </template>
 
                 </template>
             </div>
-            <!-- <p>{{ $t('message') }}</p> -->
 
         </main>
     </div>
@@ -54,7 +122,8 @@
 </template>
 
 <script>
-    import {mapState, mapGetters} from 'vuex';
+    import {mapState} from 'vuex';
+    import vSelect from 'vue-select';
     import AppDataViewSet from '@/components/app/AppDataViewSet.vue';
     import TableMode from '@/components/characterModes/TableMode.vue';
     import ListMode from '@/components/characterModes/ListMode.vue';
@@ -64,6 +133,12 @@
     import AppPagination from '@/components/app/AppPagination.vue';
     import CharactersFilter from '@/components/CharactersFilter.vue';
     import AppError from '@/components/app/AppError.vue';
+    import uiButtonsGroup from '@/components/ui/btn/UIButtonsGroup';
+    import uiButton from '@/components/ui/btn/UIButton';
+    import {DEEP_CLONE} from '@/utils/constants';
+
+    const status = ['alive', 'dead', 'unknown'];
+    const gender = ['female', 'male', 'genderless', 'unknown'];
 
     export default {
         name: 'Characters',
@@ -77,6 +152,9 @@
             AppPagination,
             CharactersFilter,
             AppError,
+            vSelect,
+            uiButton,
+            uiButtonsGroup,
         },
         data() {
             return {
@@ -115,6 +193,7 @@
                     species: '',
                     gender: '',
                 },
+                formFilter: {},
                 requestFilterDefault: {
                     name: '',
                     status: '',
@@ -123,7 +202,8 @@
                     page: 1,
                 },
                 requestFilter: {},
-
+                status: status,
+                gender: gender,
             };
         },
         computed: {
@@ -134,82 +214,47 @@
                 error: (state) => state.character.error,
             }),
 
-            // ...mapGetters({
-            //     actualPaginationInfo: 'character/actualPaginationInfo',
-            //     countCharacters: 'character/countCharacters',
-            // }),
-
         },
         watch: {
-            // info(val, oldVal) {
-            //     // is triggered whenever the store state changes
-            //     console.log('do stuff', val, oldVal);
-            // },
-            // countCharacters(val, oldVal) {
-            //     // is triggered whenever the store state changes
-            //     console.log('do stuff', val, oldVal);
-            // },
+
         },
 
         created() {
             this.requestFilter = this.requestFilterDefault;
+            this.formFilter = DEEP_CLONE(this.formFilterDefault);
         },
         async mounted() {
-            this.getCharacters(this.requestFilter);
+            this.getCharacters();
         },
         methods: {
-            getCharacters(filter) {
-                const reqFilter = this.prepareRequestFilter(filter);
-                this.$store.dispatch('character/getAllCharacters', {query: reqFilter}, null);
+            getCharacters() {
+                console.log(this.requestFilter);
+                this.$store.dispatch('character/getAllCharacters', {query: this.requestFilter}, null);
             },
             setViewMode(mode) {
                 this.activeView = mode;
             },
-            // createdFilter(filter) {
-            //     const requestFilter = {...this.requestFilterDefault, ...filter};
-            //     console.log(requestFilter);
-            //     this.getCharacters(requestFilter);
-            // },
-            applyFilter(filter) {
-                this.requestFilter.page = 1;
-                const reqFilter = this.prepareRequestFilter(filter);
-
-                this.getCharacters(reqFilter);
+            applyFilter() {
+                this.prepareRequestFilter();
+                this.getCharacters();
             },
             changePage(page) {
                 this.requestFilter.page = page;
-                //const reqFilter = this.prepareRequestFilter(filter);
-
-                this.getCharacters(this.requestFilter);
+                this.getCharacters();
             },
-            prepareRequestFilter(filter) {
-                // for (const key in this.requestFilter) {
-                //     filter[key] = this.requestFilter[key]
-                //         ? filter[key]
-                //         : null;
-                // }
-                return {...this.requestFilter, ...filter};
-            // if (bResetPage) {
-            //     requestFilter.page = 1;
-            // }
+            prepareRequestFilter() {
+                this.requestFilter = {...this.requestFilter, ...this.formFilter};
+                this.requestFilter.page = 1;
+            },
+
+            resetFilter() {
+                this.formFilter = DEEP_CLONE(this.formFilterDefault);
+                this.applyFilter();
             },
         },
     };
 </script>
 <style lang="scss">
-*,
-*::after,
-*::before {
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-}
-#app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    color: #2c3e50;
-}
 ul {
     margin-top: 0;
     padding-left: 0;
@@ -226,17 +271,6 @@ img {
     -o-object-fit: cover;
     object-fit: cover;
 }
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-#nav {
-    padding: 30px;
-}
-
-img {
-    vertical-align: middle;
-}
 
 a {
     text-decoration: none;
@@ -251,5 +285,45 @@ a {
     flex-wrap: wrap;
     width: 100%;
     margin: 0 -30px 0 0;
+}
+.form {
+    margin-bottom: 50px;
+    &__row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        margin-top: 50px;
+        margin-bottom: 50px;
+        margin-right: -15px;
+    margin-left: -15px;
+    }
+    &__block {
+        width: 100%;
+        margin-bottom: 20px;
+        &--1-2 {
+            width: 50%;
+            padding-right: 15px;
+            padding-left: 15px;
+        }
+    }
+    &__control {
+        width: 100%;
+        height: 40px;
+        padding: 10px;
+        position: relative;
+        background-color: transparent;
+        border-radius: 4px;
+        border: 1px solid #373737;
+        color: white;
+        &.v-select {
+            padding: 0;
+        }
+    }
+    &__label {
+        &--top {
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+    }
 }
 </style>

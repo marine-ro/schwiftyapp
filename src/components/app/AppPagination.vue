@@ -18,7 +18,7 @@
 
             <div class="pagination__item pagination__item--current">
 
-                <span>page {{pagination.current}}</span>
+                <span>page {{paginationCurrent}}</span>
             </div>
 
             <div class="pagination__item">
