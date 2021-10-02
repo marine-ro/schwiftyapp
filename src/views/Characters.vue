@@ -7,80 +7,10 @@
         />
         <main class="main">
             <div class="wrapper">
-                <form class="form" action="">
-                    <div class="form__body">
-                        <div class="form__row">
-                            <label class=" form__block form__block--1-2">
-                                <span class="form__label form__label--top">name</span>
-                                <input
-                                    class="form__control form__input"
-                                    type="text"
-                                    v-model="formFilter.name"
-                                    placeholder="Enter name"
-                                />
-                            </label>
-                            <label class=" form__block form__block--1-2">
-                                <span class="form__label form__label--top">species</span>
-                                <input
-                                    class="form__control form__input"
-                                    type="text"
-                                    v-model="formFilter.species"
-                                    placeholder="Enter species" />
-                            </label>
-                            <label class=" form__block form__block--1-2">
-                                <span class="form__label form__label--top">status</span>
-                                <vSelect
-                                    class="form__control vs-custom--down"
-                                    :options="status"
-                                    label="choose status"
-                                    :reduce="(option) => option"
-                                    :searchable="false"
-                                    :clearable="true"
-                                    placeholder="choose status"
-                                    v-model="formFilter.status"
-                                >
-                                    <template slot="no-options">no</template>
-                                </vSelect>
-                            </label>
-                            <label class=" form__block form__block--1-2">
-                                <span class="form__label form__label--top">gender</span>
-                                <vSelect
-                                    class="form__control vs-custom--down"
-                                    :options="gender"
-                                    ref="select"
-                                    :reduce="(option) => option"
-                                    :searchable="false"
-                                    :clearable="true"
-                                    placeholder="choose gender"
-                                    v-model="formFilter.gender"
-                                >
-                                    <template slot="no-options">no</template>
-                                </vSelect>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form__footer">
-                        <uiButtonsGroup>
-                            <uiButton
-                                type="submit"
-                                kind="accent"
-                                @click.prevent="applyFilter">
-                                <template #btn-text>
-                                    find
-                                </template>
-                            </uiButton>
-                            <uiButton
-                                type="reset"
-                                kind="basic"
-                                @click.prevent="resetFilter">
-                                <template #btn-text>
-                                    reset
-                                </template>
-                            </uiButton>
-                        </uiButtonsGroup>
-                    </div>
-
-                </form>
+                <CharactersFilter
+                    :form="formFilter"
+                    @applyFilter="applyFilter"
+                    @resetFilter="resetFilter"/>
                 <AppLoader v-if="isLoading"/>
                 <template v-else>
                     <AppDataViewSet
@@ -137,8 +67,16 @@
     import uiButton from '@/components/ui/btn/UIButton';
     import {DEEP_CLONE} from '@/utils/constants';
 
-    const status = ['alive', 'dead', 'unknown'];
-    const gender = ['female', 'male', 'genderless', 'unknown'];
+    const formDefault = {
+        name: '',
+        status: '',
+        species: '',
+        gender: '',
+    };
+    const requestFilterDefault = {
+        ...formDefault,
+        page: 1,
+    };
 
     export default {
         name: 'Characters',
@@ -187,23 +125,8 @@
                         type: 'grid',
                     },
                 },
-                formFilterDefault: {
-                    name: '',
-                    status: '',
-                    species: '',
-                    gender: '',
-                },
                 formFilter: {},
-                requestFilterDefault: {
-                    name: '',
-                    status: '',
-                    species: '',
-                    gender: '',
-                    page: 1,
-                },
                 requestFilter: {},
-                status: status,
-                gender: gender,
             };
         },
         computed: {
@@ -216,40 +139,48 @@
 
         },
         watch: {
-
+        //     formFilter: {
+        //         handler(newVal) {
+        //             this.requestFilter = newVal;
+        //         },
+        //         deep: true,
+        //         immediate: true,
+        //     },
         },
 
         created() {
-            this.requestFilter = this.requestFilterDefault;
-            this.formFilter = DEEP_CLONE(this.formFilterDefault);
+            this.formFilter = DEEP_CLONE(formDefault);
+            this.requestFilter = DEEP_CLONE(requestFilterDefault);
         },
-        async mounted() {
+        mounted() {
             this.getCharacters();
         },
         methods: {
             getCharacters() {
-                console.log(this.requestFilter);
                 this.$store.dispatch('character/getAllCharacters', {query: this.requestFilter}, null);
             },
             setViewMode(mode) {
                 this.activeView = mode;
             },
-            applyFilter() {
-                this.prepareRequestFilter();
+            applyFilter(filter) {
+                this.prepareRequestFilter(filter);
                 this.getCharacters();
             },
             changePage(page) {
                 this.requestFilter.page = page;
                 this.getCharacters();
             },
-            prepareRequestFilter() {
-                this.requestFilter = {...this.requestFilter, ...this.formFilter};
-                this.requestFilter.page = 1;
+            prepareRequestFilter(filter) {
+                this.formFilter = filter;
+                this.requestFilter = {
+                    ...this.formFilter,
+                    page: 1,
+                };
             },
 
             resetFilter() {
-                this.formFilter = DEEP_CLONE(this.formFilterDefault);
-                this.applyFilter();
+                const filter = DEEP_CLONE(formDefault);
+                this.applyFilter(filter);
             },
         },
     };

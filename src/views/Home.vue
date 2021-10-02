@@ -1,10 +1,13 @@
 <template>
-    <PageTop
-        :title="pageTop.title"
-        :subtitle="pageTop.subtitle"
-        :backgroundName="pageTop.bg"
-        :link="pageTop.link"
-    />
+    <div>
+        <PageTop
+            :title="pageTop.title"
+            :subtitle="pageTop.subtitle"
+            :backgroundName="pageTop.bg"
+            :link="pageTop.link"
+        />
+
+    </div>
 </template>
 
 <script>
@@ -26,9 +29,12 @@
                     },
                 },
 
+                value: null,
+                watchedVal: false,
+                answer: '',
+
             };
         },
-
     };
 </script>
 <style lang="scss">

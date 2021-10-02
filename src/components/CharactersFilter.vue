@@ -7,7 +7,7 @@
                     <input
                         class="form__control form__input"
                         type="text"
-                        v-model="formFilter.name"
+                        v-model="form.name"
                         placeholder="Enter name"
                     />
                 </label>
@@ -16,7 +16,7 @@
                     <input
                         class="form__control form__input"
                         type="text"
-                        v-model="formFilter.species"
+                        v-model="form.species"
                         placeholder="Enter species" />
                 </label>
                 <label class=" form__block form__block--1-2">
@@ -29,7 +29,7 @@
                         :searchable="false"
                         :clearable="true"
                         placeholder="choose status"
-                        v-model="formFilter.status"
+                        v-model="form.status"
                     >
                         <template slot="no-options">no</template>
                     </vSelect>
@@ -44,7 +44,7 @@
                         :searchable="false"
                         :clearable="true"
                         placeholder="choose gender"
-                        v-model="formFilter.gender"
+                        v-model="form.gender"
                     >
                         <template slot="no-options">no</template>
                     </vSelect>
@@ -83,19 +83,6 @@
     const status = ['alive', 'dead', 'unknown'];
     const gender = ['female', 'male', 'genderless', 'unknown'];
 
-    // const formFilterDefault = {
-    //     name: '',
-    //     status: '',
-    //     species: '',
-    //     gender: '',
-    // };
-    const requestFilter = {
-        name: 'rick',
-        status: '',
-        species: '',
-        gender: '',
-    };
-
     export default {
         name: 'CharactersFilter',
         components: {
@@ -104,7 +91,7 @@
             uiButtonsGroup,
         },
         props: {
-            formFilterDefault: {
+            formFilter: {
                 type: Object,
                 required: false,
                 default: () => {},
@@ -114,23 +101,35 @@
             return {
                 status: status,
                 gender: gender,
-                formFilter: {},
+                form: {
+                    name: '',
+                    status: '',
+                    species: '',
+                    gender: '',
+                },
             };
         },
         mounted() {
             //this.$refs.select.open = true;
         },
         created() {
-            this.formFilter = DEEP_CLONE(this.formFilterDefault);
+            this.form = DEEP_CLONE(this.formFilter);
+        },
+        watch: {
+            formFilter: {
+                handler(newVal) {
+                    this.form = newVal;
+                },
+                immediate: true,
+            },
         },
         methods: {
             applyFilter() {
-                this.$emit('applyFilter', this.formFilter);
+                this.$emit('applyFilter', this.form);
             },
 
             resetFilter() {
-                this.formFilter = DEEP_CLONE(this.formFilterDefault);
-                this.$emit('resetFilter', this.formFilter);
+                this.$emit('resetFilter');
             },
         },
     };
