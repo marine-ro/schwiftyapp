@@ -16,4 +16,12 @@ export const STORAGE = {
             console.log(error);
         }
     },
+    removeItem(key, data) {
+        try {
+            localStorage.removeItem(key, JSON.stringify(data));
+        }
+        catch (error) {
+            console.log(error);
+        }
+    },
 };

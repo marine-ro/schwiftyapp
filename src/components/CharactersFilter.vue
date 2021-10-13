@@ -101,16 +101,8 @@
             return {
                 status: status,
                 gender: gender,
-                form: {
-                    name: '',
-                    status: '',
-                    species: '',
-                    gender: '',
-                },
+                form: {},
             };
-        },
-        mounted() {
-            //this.$refs.select.open = true;
         },
         created() {
             this.form = DEEP_CLONE(this.formFilter);
@@ -134,47 +126,3 @@
         },
     };
 </script>
-<style lang="scss" scoped>
-//@import "vue-select/src/scss/vue-select.scss";
-.form {
-    margin-bottom: 50px;
-    &__row {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-around;
-        margin-top: 50px;
-        margin-bottom: 50px;
-        margin-right: -15px;
-    margin-left: -15px;
-    }
-    &__block {
-        width: 100%;
-        margin-bottom: 20px;
-        &--1-2 {
-            width: 50%;
-            padding-right: 15px;
-            padding-left: 15px;
-        }
-    }
-    &__control {
-        width: 100%;
-        height: 40px;
-        padding: 10px;
-        position: relative;
-        background-color: transparent;
-        border-radius: 4px;
-        border: 1px solid #373737;
-        color: white;
-        &.v-select {
-            padding: 0;
-        }
-    }
-    &__label {
-        &--top {
-            margin-bottom: 12px;
-            display: inline-block;
-        }
-    }
-}
-
-</style>

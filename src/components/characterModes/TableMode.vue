@@ -33,11 +33,42 @@
                 >
                     {{character.location.name}}
                 </td>
-                <td class="table__cell table__cell--td table__cell--last">
+                <td class="table__cell table__cell--td">
                     <div class="table__row">
                         <CharacterStatusIcon :status="character.status"/>
                         <span>{{character.status}}</span>
                     </div>
+                </td>
+                <td class="table__cell table__cell--td table__cell--last">
+                    <uiButtonsGroup>
+                        <uiButton
+                            kind="basic"
+                            size="small"
+                            @click.stop.prevent="$emit('deleteCharacter', character)"
+                        >
+
+                            <template #btn-text>
+                                delete
+                            </template>
+                        </uiButton>
+
+                        <uiButton
+                            kind="basic"
+                            size="small"
+                            @click.prevent="$emit('showCharacter', character.id)">
+                            <template #btn-text>
+                                show
+                            </template>
+                        </uiButton>
+                        <uiButton
+                            kind="basic"
+                            size="small"
+                            @click.prevent="$emit('editCharacter', character.id)">
+                            <template #btn-text>
+                                edit
+                            </template>
+                        </uiButton>
+                    </uiButtonsGroup>
                 </td>
             </tr>
         </tbody>
@@ -46,11 +77,15 @@
 
 <script>
     import CharacterStatusIcon from '@/components/CharacterStatusIcon.vue';
+    import uiButton from '@/components/ui/btn/UIButton';
+    import uiButtonsGroup from '@/components/ui/btn/UIButtonsGroup';
 
     export default {
         name: 'TableMode',
         components: {
             CharacterStatusIcon,
+            uiButton,
+            uiButtonsGroup,
         },
         props: {
             characters: {
@@ -73,7 +108,7 @@
                 unknown: false,
 
                 tableData: {
-                    headers: ['name', 'gender', 'species', 'location', 'status'],
+                    headers: ['name', 'gender', 'species', 'location', 'status', ''],
                 },
             };
         },

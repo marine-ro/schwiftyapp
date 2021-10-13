@@ -7,6 +7,9 @@
             :key="character.id"
             :card="character"
             :type="type"
+            @showCharacter="$emit('showCharacter', character.id)"
+            @editCharacter="$emit('editCharacter', character.id)"
+            @deleteCharacter="$emit('deleteCharacter', character)"
         />
     </ul>
 </template>

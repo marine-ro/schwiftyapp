@@ -18,7 +18,7 @@
             to: {name: 'Home'},
         },
         {
-            name: 'Characters',
+            name: 'My Characters',
             to: {name: 'Characters'},
         },
         {

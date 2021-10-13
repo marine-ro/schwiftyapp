@@ -1,8 +1,8 @@
-import character from '@/store/modules/character';
-import location from '@/store/modules/location';
-import episode from '@/store/modules/episode';
+import globalCharacters from '@/store/modules/global-characters';
+import favoriteCharacters from '@/store/modules/favorite-characters';
+import notifications from '@/store/modules/notifications';
 export default {
-    character,
-    location,
-    episode,
+    globalCharacters,
+    favoriteCharacters,
+    notifications,
 };

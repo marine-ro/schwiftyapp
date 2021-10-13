@@ -2,8 +2,8 @@
     <section class="page-top" >
         <div class="page-top__content">
             <div class="page-top__desc">
-                <span class="page-top__subtitle">{{subtitle}}</span>
                 <h1 class="page-top__title">{{title}}</h1>
+                <span class="page-top__subtitle">{{subtitle}}</span>
                 <p v-if="text">
                     {{text}}
                 </p>
@@ -99,9 +99,14 @@
     }
     &__title {
         margin-top: 0;
-        font-size: 100px;
+        font-size: 65px;
         font-weight: 700;
-
+    }
+    &__subtitle {
+        margin-top: 0;
+        margin-bottom: 30px;
+        font-size: 35px;
+        font-weight: 600;
     }
     &__image {
         position: relative;

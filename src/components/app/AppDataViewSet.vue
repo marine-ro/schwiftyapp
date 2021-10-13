@@ -5,12 +5,17 @@
             :class="{'active': mode.view === activeView}"
             v-for="mode in charactersView"
             :key="mode.id"
+            tabindex="1"
+            role="button"
             @click="setActiveViewMode(mode.view)"
         >
-            <span class="view-mode__icon" v-if="mode.icon">
-                <inline-svg :src="SetIconSrc(mode.icon)"/>
-            </span>
-            <span class="view-mode__text" v-if="mode.text">{{mode.text}}</span>
+            <button class="view-mode__btn btn--pseudo">
+                <span class="view-mode__icon" v-if="mode.icon">
+                    <inline-svg :src="SetIconSrc(mode.icon)"/>
+                </span>
+                <span class="view-mode__text" v-if="mode.text">{{mode.text}}</span>
+            </button>
+
         </li>
     </ul>
 </template>
@@ -49,47 +54,3 @@
 
     };
 </script>
-<style scoped lang="scss">
-.view-mode {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 0;
-    margin: 20px 0;
-    &__item {
-        display: flex;
-        align-items: center;
-        border: none;
-        outline: none;
-        padding: 12px 16px;
-        background-color: #f1f1f1;
-        color: #333333;
-        cursor: pointer;
-        text-transform: none;
-        &:not(:last-child) {
-            margin-right: 20px;
-        }
-        &.active {
-            background-color: #e06020;
-            color: #ffffff;
-            &:hover {
-            transform: none;
-        }
-        }
-    }
-    &__icon {
-        width: 20px;
-        height: 20px;
-        margin-right: 10px;
-        & svg {
-            width: 20px;
-            height: 20px;
-            stroke: currentColor;
-            fill: currentColor;
-        }
-    }
-    &__text {
-        font-size: 16px;
-    }
-}
-</style>

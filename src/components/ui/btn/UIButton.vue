@@ -21,6 +21,10 @@
         danger: 'btn--danger',
         basic: 'btn--basic',
     };
+    const BTN_SIZE = {
+        normal: 'btn--normal',
+        small: 'btn--small',
+    };
     export default {
         name: 'ui-button',
         props: {
@@ -41,6 +45,13 @@
                     return ['default', 'accent', 'success', 'warning', 'danger', 'basic'].indexOf(value) !== -1;
                 },
             },
+            size: {
+                type: String,
+                default: 'normal',
+                validator(value) {
+                    return ['normal', 'small'].indexOf(value) !== -1;
+                },
+            },
         },
 
         computed: {
@@ -48,6 +59,7 @@
                 return [
                     'btn',
                     BTN_VARIANTS[this.kind],
+                    BTN_SIZE[this.size],
                     {active: this.active},
                     {disabled: this.disabled},
                 ];
@@ -62,44 +74,3 @@
 
     };
 </script>
-<style lang="scss" scoped>
-.btn {
-    display: inline-block;
-    margin: 0.5em 0;
-    padding: 1em 2em;
-    border-radius: 3px;
-    font-family: sans-serif;
-    font-size: 1em;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    line-height: 1.2;
-    text-decoration: none;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: 0.3s;
-    border-width: 1px;
-    border-style: solid;
-    transition: 0.5s;
-
-    &--default {
-        color: rgba(0,0,0,.6);
-        background: #e0e1e2;
-        border-color: #e0e1e2;
-    }
-    &--basic {
-        color: white;
-        background-color: transparent;
-        box-shadow: inset 0 0 0 1px rgb(250 250 250 / 10%);
-        border-color: transparent;
-    }
-    &--accent {
-        color: rgba(0,0,0,.6);
-        background: #e06020;
-        border-color: #e06020;
-    }
-    &:hover {
-    transform: translateY(-5px);
-    transition: 0.5s;
-}
-}
-</style>

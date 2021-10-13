@@ -32,15 +32,3 @@
 
     };
 </script>
-<style lang="scss" scoped>
-.btns {
-    &--horizontal {
-        display: flex;
-        & .btn {
-            &:not(:last-child) {
-                margin-right: 20px;
-            }
-        }
-    }
-}
-</style>

@@ -9,8 +9,8 @@
                 <a
                     rel="prev"
                     class="pagination__link"
-                    :class="{ 'pagination__link--disabled': isEmptyPrevPage}"
-                    @click="changePage(pagination.prev)"
+                    :class="{ 'pagination__link--disabled': !hasPrev}"
+                    @click="changePage(paginationCurrent - 1)"
                 >
                     <span>Prev</span>
                 </a>
@@ -25,8 +25,8 @@
                 <a
                     rel="next"
                     class="pagination__link"
-                    :class="{ 'pagination__link--disabled': !pagination.next }"
-                    @click="changePage(pagination.next)"
+                    :class="{ 'pagination__link--disabled': !hasNext }"
+                    @click="changePage(paginationCurrent + 1)"
                 >
                     <span>Next</span>
                 </a>
@@ -36,7 +36,6 @@
                 <input
                     class="pagination__link pagination__input"
                     type="number"
-                    @input="checkInput($event)"
                     v-model.number="inputPageNumber"
                     placeholder="Enter page"
                     @keyup.enter="changePageFromInput(inputPageNumber, $event)"
@@ -59,9 +58,7 @@
         total: 1,
         first: 1,
         last: 1,
-        next: 1,
         current: 1,
-        prev: null,
     };
     export default {
         name: 'AppPagination',
@@ -88,13 +85,18 @@
             this.pagination.total = this.pages;
             this.pagination.current = this.paginationCurrent;
             this.pagination.last = this.pages;
-            this.pagination.next = this.paginationCurrent + 1;
-            this.pagination.prev = this.paginationCurrent - 1;
         },
-        methods: {
-            isEmptyPrevPage() {
-                return !this.pagination.prev || this.pagination.prev === 0 || this.pagination.prev === null;
+
+        computed: {
+            hasPrev() {
+                return this.paginationCurrent > 1;
             },
+            hasNext() {
+                return this.pagination.last > this.paginationCurrent;
+            },
+        },
+
+        methods: {
 
             changePage(page) {
                 if (page < 1 || page > this.pagination.last) return;
@@ -117,11 +119,13 @@
                     this.inputPageNumber = 1;
                 }
 
-                //this.$emit('changePage', this.inputPageNumber);
+                this.$emit('changePage', this.inputPageNumber);
             },
+
         },
     };
 </script>
+
 <style scoped lang="scss">
 .pagination {
     &__total {

@@ -1,4 +1,4 @@
-export const ENDPOINTS = {
+export const SCHWIFTY_ENDPOINTS = {
     character: {
         endpoints: [
             {

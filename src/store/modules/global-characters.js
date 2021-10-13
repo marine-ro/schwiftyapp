@@ -1,40 +1,14 @@
 import schwiftyApiService from '@/api/api.schwifty';
-const paginationDefault = {
-    total: 1,
-    first: 1,
-    last: 1,
-    next: 1,
-    current: 1,
-    prev: 1,
-};
+
 const state = {
     characters: null,
     character: null,
     info: null,
-    pagination: paginationDefault,
     isLoading: false,
     error: null,
 };
 const getters = {
-    // actualPaginationInfo: state => {
-    //     const info = state.info;
-    //     // if (info.prev === null) {
-    //     //     state.pagination.prev = null;
-    //     //     state.pagination.first = 1;
-    //     //     state.pagination.current = 1;
-    //     //     state.pagination.next = state.pagination.first + 1;
-    //     // }
-    //     // state.pagination.total = info.pages;
-    //     // state.pagination.last = info.pages;
 
-    //     return {
-    //         prev: info.prev,
-    //         total: info.pages,
-    //     };
-    // },
-    // countCharacters: state => {
-    //     return state.info.count;
-    // },
 };
 const actions = {
     getAllCharacters(context, params, header) {

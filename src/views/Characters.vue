@@ -5,27 +5,33 @@
             :subtitle="pageTop.subtitle"
             :backgroundName="pageTop.bg"
         />
+
         <main class="main">
             <div class="wrapper">
+                <uiButtonsGroup>
+                    <uiButton
+                        kind="accent"
+                        @click="showAddCharactersModal">
+                        <template #btn-text>
+                            add Characters
+                        </template>
+                    </uiButton>
+                </uiButtonsGroup>
+
                 <CharactersFilter
-                    :form="formFilter"
+                    :formFilter="formFilter"
                     @applyFilter="applyFilter"
                     @resetFilter="resetFilter"/>
-                <AppLoader v-if="isLoading"/>
-                <template v-else>
+
+                <template  v-if="characters && characters.length > 0">
                     <AppDataViewSet
                         :charactersView="viewModeComponents"
                         :activeView="activeView"
                         @setViewMode="setViewMode"
                     />
-                    <AppError v-if="error" :error="error"/>
-                    <template v-else>
-                        <AppPagination
-                            v-if="info"
-                            :pages="info.pages"
-                            :paginationCurrent="requestFilter.page"
-                            @changePage="changePage"
-                        />
+
+                    <div class="main__view">
+
                         <template v-for="(component, index) in viewModeComponents">
                             <component
                                 :key="index"
@@ -33,20 +39,75 @@
                                 :is="component.component"
                                 :characters="characters"
                                 :type="component.type"
+                                @showCharacter="showCharacter"
+                                @editCharacter="editCharacter"
+                                @deleteCharacter="deleteCharacter"
                             />
                         </template>
                         <AppPagination
-                            v-if="info"
-                            :pages="info.pages"
-                            :paginationCurrent="requestFilter.page"
+                            v-if="pagination && pagination.count > 1"
+                            :pages="pagination.count"
+                            :paginationCurrent="pagination.page"
                             @changePage="changePage"
                         />
-                    </template>
+                    </div>
 
                 </template>
+                <AppEmpty
+                    v-else
+                    :empty="emptyBlock"
+                />
             </div>
 
         </main>
+        <AddCharacters
+            v-if="modal.show === 'showAddCharacters'"
+            @close="hideModal"
+            @callback="callbackModal"
+        >
+        </AddCharacters>
+        <ViewCharacter
+            v-if="modal.show === 'showViewCharacter'"
+            :param="modal.param"
+            @close="hideModal"
+        >
+        </ViewCharacter>
+        <EditCharacter
+            v-if="modal.show === 'showEditCharacter'"
+            :param="modal.param"
+            @close="hideModal"
+            @callback="callbackModal"
+        >
+        </EditCharacter>
+        <UIModalConfirm
+            ref="confirmAction"
+        >
+        </UIModalConfirm>
+
+        <div class="page__dop">
+            <div class="wrapper">
+                <div v-if="deletedCharacters && deletedCharacters.length > 0">
+                    <h3>deletedCharacters: {{deletedCharacters.length || 0}}</h3>
+
+                    <div
+                        v-for="character in deletedCharacters"
+                        :key="character.id">
+                        <p>
+                            {{character.name}} - {{character.species}}
+                        </p>
+                    </div>
+                    <uiButton
+                        kind="accent"
+                        @click="deleteCharactersForever">
+                        <template #btn-text>
+                            delete forever
+                        </template>
+                    </uiButton>
+                </div>
+            </div>
+
+        </div>
+
     </div>
 
 </template>
@@ -62,9 +123,15 @@
     import AppLoader from '@/components/app/AppLoader.vue';
     import AppPagination from '@/components/app/AppPagination.vue';
     import CharactersFilter from '@/components/CharactersFilter.vue';
-    import AppError from '@/components/app/AppError.vue';
+    import AppEmpty from '@/components/app/AppEmpty.vue';
     import uiButtonsGroup from '@/components/ui/btn/UIButtonsGroup';
     import uiButton from '@/components/ui/btn/UIButton';
+    import uiModal from '@/components/ui/modals/UIModal';
+    import UIModalConfirm from '@/components/ui/modals/UIModalConfirm';
+    import AddCharacters from '@/components/characters/modals/AddCharacters.vue';
+    import ViewCharacter from '@/components/characters/modals/ViewCharacter.vue';
+    import EditCharacter from '@/components/characters/modals/EditCharacter.vue';
+
     import {DEEP_CLONE} from '@/utils/constants';
 
     const formDefault = {
@@ -74,8 +141,13 @@
         gender: '',
     };
     const requestFilterDefault = {
-        ...formDefault,
         page: 1,
+        ...formDefault,
+    };
+
+    const EMPTY = {
+        title: '',
+        message: 'no characters find',
     };
 
     export default {
@@ -89,16 +161,21 @@
             AppLoader,
             AppPagination,
             CharactersFilter,
-            AppError,
+            AppEmpty,
             vSelect,
             uiButton,
             uiButtonsGroup,
+            uiModal,
+            UIModalConfirm,
+            AddCharacters,
+            ViewCharacter,
+            EditCharacter,
         },
         data() {
             return {
                 pageTop: {
-                    subtitle: 'Welcome to the characters',
-                    title: 'This is characters',
+                    subtitle: '',
+                    title: 'My favorite characters',
                     bg: 'characters',
                 },
                 activeView: 'table',
@@ -127,25 +204,20 @@
                 },
                 formFilter: {},
                 requestFilter: {},
+                modal: {
+                    show: false,
+                    param: null,
+                },
+                emptyBlock: EMPTY,
             };
         },
         computed: {
             ...mapState({
-                characters: (state) => state.character.characters,
-                info: (state) => state.character.info,
-                isLoading: (state) => state.character.isLoading,
-                error: (state) => state.character.error,
+                characters: (state) => state.favoriteCharacters.characters,
+                deletedCharacters: (state) => state.favoriteCharacters.deletedCharacters,
+                pagination: (state) => state.favoriteCharacters.pagination,
             }),
 
-        },
-        watch: {
-        //     formFilter: {
-        //         handler(newVal) {
-        //             this.requestFilter = newVal;
-        //         },
-        //         deep: true,
-        //         immediate: true,
-        //     },
         },
 
         created() {
@@ -154,10 +226,14 @@
         },
         mounted() {
             this.getCharacters();
+            this.getDeletedCharacters();
         },
         methods: {
             getCharacters() {
-                this.$store.dispatch('character/getAllCharacters', {query: this.requestFilter}, null);
+                this.$store.dispatch('favoriteCharacters/getCharacters', {query: this.requestFilter});
+            },
+            getDeletedCharacters() {
+                this.$store.dispatch('favoriteCharacters/getDeletedCharacters');
             },
             setViewMode(mode) {
                 this.activeView = mode;
@@ -168,6 +244,7 @@
             },
             changePage(page) {
                 this.requestFilter.page = page;
+                console.log(this.requestFilter.page);
                 this.getCharacters();
             },
             prepareRequestFilter(filter) {
@@ -177,84 +254,85 @@
                     page: 1,
                 };
             },
+            showAddCharactersModal() {
+                this.showModal('showAddCharacters');
+            },
 
             resetFilter() {
                 const filter = DEEP_CLONE(formDefault);
                 this.applyFilter(filter);
             },
+
+            showModal(show) {
+                this.modal.show = show;
+            },
+            hideModal() {
+                this.modal.param = null;
+                this.modal.show = false;
+            },
+            callbackModal() {
+                this.modal.show = false;
+                this.modal.param = null;
+                this.getCharacters();
+            },
+            showCharacter(id) {
+                this.modal.param = {id: id};
+                this.showModal('showViewCharacter');
+            },
+            editCharacter(id) {
+                this.modal.param = {id: id};
+                this.showModal('showEditCharacter');
+            },
+
+            deleteCharacter(character) {
+                this.$refs.confirmAction.show({
+                    message: `Delete character ${character.name} from favorite ?`,
+                    okButtonText: 'Delete',
+                }).then((res) => {
+                    if (res) {
+                        const noti = {
+                            type: 'success',
+                            title: ' success',
+                            message: 'character delete.',
+                        };
+                        this.$store.dispatch('favoriteCharacters/deleteCharacter', {id: character.id});
+                        this.$store.commit('notifications/ADD_NOTIFICATION', {noti: noti});
+                    }
+                })
+                    .catch(() => {
+                        const noti = {
+                            type: 'info',
+                            title: ' info',
+                            message: 'You chose not to delete character. Doing nothing now.',
+                        };
+                        this.$store.commit('notifications/ADD_NOTIFICATION', {noti: noti});
+                    });
+            },
+            deleteCharactersForever() {
+                this.$refs.confirmAction.show({
+                    message: 'Delete characters forever ?',
+                    okButtonText: 'Delete Forever',
+                }).then((res) => {
+                    if (res) {
+                        const noti = {
+                            type: 'success',
+                            title: ' success',
+                            message: 'character delete forever.',
+                        };
+
+                        this.$store.dispatch('favoriteCharacters/deleteCharacterForever');
+                        this.$store.commit('notifications/ADD_NOTIFICATION', {noti: noti});
+                    }
+                })
+                    .catch(() => {
+                        const noti = {
+                            type: 'info',
+                            title: ' info',
+                            message: 'You chose not to delete character. Doing nothing now.',
+                        };
+                        this.$store.commit('notifications/ADD_NOTIFICATION', {noti: noti});
+                    });
+            },
         },
     };
 </script>
-<style lang="scss">
-ul {
-    margin-top: 0;
-    padding-left: 0;
-    list-style: none;
-}
-img {
-    width: auto;
-    max-width: 100%;
-    height: auto;
-    max-height: 100%;
-
-    vertical-align: middle;
-
-    -o-object-fit: cover;
-    object-fit: cover;
-}
-
-a {
-    text-decoration: none;
-    font-weight: bold;
-    color: #2c3e50;
-    display: block;
-}
-.list {
-    display: flex;
-    justify-content: center;
-    align-items: baseline;
-    flex-wrap: wrap;
-    width: 100%;
-    margin: 0 -30px 0 0;
-}
-.form {
-    margin-bottom: 50px;
-    &__row {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-around;
-        margin-top: 50px;
-        margin-bottom: 50px;
-        margin-right: -15px;
-    margin-left: -15px;
-    }
-    &__block {
-        width: 100%;
-        margin-bottom: 20px;
-        &--1-2 {
-            width: 50%;
-            padding-right: 15px;
-            padding-left: 15px;
-        }
-    }
-    &__control {
-        width: 100%;
-        height: 40px;
-        padding: 10px;
-        position: relative;
-        background-color: transparent;
-        border-radius: 4px;
-        border: 1px solid #373737;
-        color: white;
-        &.v-select {
-            padding: 0;
-        }
-    }
-    &__label {
-        &--top {
-            margin-bottom: 12px;
-            display: inline-block;
-        }
-    }
-}
-</style>

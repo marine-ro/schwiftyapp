@@ -1,8 +1,8 @@
 <template>
-    <div class="error">
-        <h2>{{error.title}}</h2>
-        <p>
-            {{error.errors}}
+    <div class="empty">
+        <h2  v-if="empty.title">{{empty.title}}</h2>
+        <p v-if="empty.message">
+            {{empty.message}}
         </p>
     </div>
 </template>
@@ -10,9 +10,9 @@
 <script>
 
     export default {
-        name: 'AppError',
+        name: 'AppEmpty',
         props: {
-            error: {
+            empty: {
                 type: Object,
                 required: false,
                 default: () => {},
@@ -20,9 +20,3 @@
         },
     };
 </script>
-
-<style lang="scss">
-.error {
-    margin: 20px;
-}
-</style>

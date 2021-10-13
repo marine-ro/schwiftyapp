@@ -2,7 +2,10 @@
     <footer class="footer">
         <div class="wrapper">
             <div class="footer__content">
-                made by Marine Ro in 2021
+                made by  <a href="https://github.com/marine-ro">
+                    Marine Ro
+                </a>
+                in 2021
             </div>
         </div>
     </footer>
@@ -19,11 +22,3 @@
         },
     };
 </script>
-<style scoped lang="scss">
-    .footer {
-        padding: 30px 0;
-        &__content {
-            text-align: center;
-        }
-    }
-</style>
