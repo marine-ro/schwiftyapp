@@ -13,7 +13,6 @@ class FavoriteCharacterApiService {
         this._characters = [];
         this._deletedCharacters = [];
         this._filter = {};
-        this._sort = {};
         this._pagination = {};
         this.pageSize = 3;
     }
@@ -24,9 +23,7 @@ class FavoriteCharacterApiService {
 
     decomposeRequest(request) {
         const req = request;
-        this._sort = req.sort;
         this._pagination.page = req.page;
-        delete req.sort;
         delete req.page;
         this._filter = req;
     }
