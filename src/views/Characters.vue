@@ -128,9 +128,9 @@
     import uiButton from '@/components/ui/btn/UIButton';
     import uiModal from '@/components/ui/modals/UIModal';
     import UIModalConfirm from '@/components/ui/modals/UIModalConfirm';
-    import AddCharacters from '@/components/characters/modals/AddCharacters.vue';
-    import ViewCharacter from '@/components/characters/modals/ViewCharacter.vue';
-    import EditCharacter from '@/components/characters/modals/EditCharacter.vue';
+    import AddCharacters from '@/components/modals/AddCharacters.vue';
+    import ViewCharacter from '@/components/modals/ViewCharacter.vue';
+    import EditCharacter from '@/components/modals/EditCharacter.vue';
 
     import {DEEP_CLONE} from '@/utils/constants';
 
